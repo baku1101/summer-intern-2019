@@ -29,3 +29,5 @@ npm-debug.log
 /ui/.sass-cache
 
 vue_form/dist
+
+nohup.out
