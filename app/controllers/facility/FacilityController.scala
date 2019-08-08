@@ -14,6 +14,7 @@ import persistence.facility.model.Facility.formForFacilitySearch
 import persistence.geo.model.Location
 import persistence.geo.dao.LocationDAO
 import model.site.facility.SiteViewValueFacilityList
+import model.site.facility.SiteViewValueFacilityEdit
 import model.component.util.ViewValuePageLayout
 
 
@@ -27,21 +28,38 @@ class FacilityController @javax.inject.Inject()(
   implicit lazy val executionContext = defaultExecutionContext
 
   /**
-    * 施設一覧ページ
-    */
+   * 施設一覧ページ
+   */
   def list = Action.async { implicit request =>
     for {
       locSeq      <- daoLocation.filterByIds(Location.Region.IS_PREF_ALL)
       facilitySeq <- facilityDao.findAll
+      } yield {
+        val vv = SiteViewValueFacilityList(
+          layout     = ViewValuePageLayout(id = request.uri),
+          location   = locSeq,
+          facilities = facilitySeq
+        )
+        Ok(views.html.site.facility.list.Main(vv, formForFacilitySearch))
+      }
+  }
+
+  /**
+   * 施設編集ページ
+   */
+  def edit(id: persistence.facility.model.Facility.Id) = Action.async {implicit request =>
+    // ここ，データは一つだけだからforは使いたくないけどFutureの取り方がよくわからない...
+    for {
+      facility <- facilityDao.get(id)
     } yield {
-      val vv = SiteViewValueFacilityList(
-        layout     = ViewValuePageLayout(id = request.uri),
-        location   = locSeq,
-        facilities = facilitySeq
-      )
-      Ok(views.html.site.facility.list.Main(vv, formForFacilitySearch))
+    val vv = SiteViewValueFacilityEdit(
+      layout   = ViewValuePageLayout(id = request.uri),
+      facility = facility.get
+    )
+    Ok(views.html.site.facility.edit.Main(vv, formForFacilitySearch))
     }
   }
+
 
   /**
    * 施設検索
@@ -49,17 +67,17 @@ class FacilityController @javax.inject.Inject()(
   def search = Action.async { implicit request =>
     formForFacilitySearch.bindFromRequest.fold(
       errors => {
-       for {
+        for {
           locSeq      <- daoLocation.filterByIds(Location.Region.IS_PREF_ALL)
           facilitySeq <- facilityDao.findAll
-        } yield {
-          val vv = SiteViewValueFacilityList(
-            layout     = ViewValuePageLayout(id = request.uri),
-            location   = locSeq,
-            facilities = facilitySeq
-          )
+          } yield {
+            val vv = SiteViewValueFacilityList(
+              layout     = ViewValuePageLayout(id = request.uri),
+              location   = locSeq,
+              facilities = facilitySeq
+            )
           BadRequest(views.html.site.facility.list.Main(vv, errors))
-        }
+          }
       },
       form   => {
         for {
@@ -72,15 +90,15 @@ class FacilityController @javax.inject.Inject()(
               } yield facilitySeq
             case None     => facilityDao.findAll
           }
-        } yield {
-          val vv = SiteViewValueFacilityList(
-            layout     = ViewValuePageLayout(id = request.uri),
-            location   = locSeq,
-            facilities = facilitySeq
-          )
+          } yield {
+            val vv = SiteViewValueFacilityList(
+              layout     = ViewValuePageLayout(id = request.uri),
+              location   = locSeq,
+              facilities = facilitySeq
+            )
           Ok(views.html.site.facility.list.Main(vv, formForFacilitySearch.fill(form)))
-        }
+          }
       }
-    )
+      )
   }
 }

@@ -18,3 +18,10 @@ case class SiteViewValueFacilityList(
   location: Seq[Location],
   facilities: Seq[Facility]
 )
+
+// 表示: 施設変更
+//~~~~~~~~~~~~~~~~~~~~~
+case class SiteViewValueFacilityEdit(
+  layout:   ViewValuePageLayout,
+  facility: Facility
+)
