@@ -10,13 +10,15 @@ package controllers.facility
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, MessagesControllerComponents}
 import persistence.facility.dao.FacilityDAO
-import persistence.facility.model.Facility.formForFacilitySearch
+import persistence.facility.model.Facility.{formForFacilitySearch, formForFacilityEdit}
+import persistence.facility.model.Facility
 import persistence.geo.model.Location
 import persistence.geo.dao.LocationDAO
 import model.site.facility.SiteViewValueFacilityList
 import model.site.facility.SiteViewValueFacilityEdit
 import model.component.util.ViewValuePageLayout
-
+import java.time.LocalDateTime
+import scala.concurrent.Future
 
 // 施設
 //~~~~~~~~~~~~~~~~~~~~~
@@ -48,18 +50,56 @@ class FacilityController @javax.inject.Inject()(
    * 施設編集ページ
    */
   def edit(id: persistence.facility.model.Facility.Id) = Action.async {implicit request =>
-    // ここ，データは一つだけだからforは使いたくないけどFutureの取り方がよくわからない...
+    // ここ，データは一つだけだからforは使いたくないけどFutureの扱い方がよくわからない...
     for {
+      locSeq      <- daoLocation.filterByIds(Location.Region.IS_PREF_ALL)
       facility <- facilityDao.get(id)
     } yield {
     val vv = SiteViewValueFacilityEdit(
       layout   = ViewValuePageLayout(id = request.uri),
+      location   = locSeq,
       facility = facility.get
     )
-    Ok(views.html.site.facility.edit.Main(vv, formForFacilitySearch))
+    Ok(views.html.site.facility.edit.Main(vv, formForFacilityEdit))
     }
   }
 
+  def editpost(id: persistence.facility.model.Facility.Id) = Action.async { implicit request =>
+    formForFacilityEdit.bindFromRequest.fold(
+      errors => {
+        for {
+          locSeq      <- daoLocation.filterByIds(Location.Region.IS_PREF_ALL)
+          facility <- facilityDao.get(id)
+        } yield {
+          val vv = SiteViewValueFacilityEdit(
+            layout   = ViewValuePageLayout(id = request.uri),
+            location   = locSeq,
+            facility = facility.get
+          )
+          BadRequest(views.html.site.facility.edit.Main(vv, errors))
+        }
+      },
+      form   => {
+        // まずDBのupdate処理
+        for {
+          facility <- facilityDao.get(id)
+        } yield {
+          val f = Facility(
+            id = facility.get.id,
+            locationId = form.locationIdOpt.get,
+            name = form.nameOpt.get,
+            address = form.addressOpt.get,
+            description = form.descriptionOpt.get,
+            updatedAt = LocalDateTime.now,
+            createdAt = facility.get.createdAt
+            )
+          facilityDao.update(f)
+          // listの表示
+          Redirect("/facility/list")
+        }
+      }
+    )
+  }
 
   /**
    * 施設検索
@@ -99,6 +139,6 @@ class FacilityController @javax.inject.Inject()(
           Ok(views.html.site.facility.list.Main(vv, formForFacilitySearch.fill(form)))
           }
       }
-      )
+    )
   }
 }

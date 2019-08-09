@@ -8,8 +8,8 @@
 @import model.site.facility.SiteViewValueFacilityEdit
 @import play.api.data.Form
 
-@import persistence.facility.model.FacilitySearch
-@(vv: SiteViewValueFacilityEdit, form: Form[FacilitySearch])(implicit messages: play.api.i18n.Messages)
+@import persistence.facility.model.FacilityEdit
+@(vv: SiteViewValueFacilityEdit, form: Form[FacilityEdit])(implicit messages: play.api.i18n.Messages)
 
 @** 施設検索一覧 *@
 @views.html.common.layout.InnerContent("site-app-new-user-form", "content") {
@@ -18,36 +18,53 @@
     <span class="header__title">施設情報変更</span>
   </h3>
 
-  @** --[ 一覧 ]-------------------------------------------------------- *@
-  <div class="content__section content">
+  @** --[ 変更フォーム ]-------------------------------------------------------- *@
+  <div class="content__section form">
+    @helper.form(action = controllers.facility.routes.FacilityController.editpost(vv.facility.id.get)) {
       <article class="facility-list-item">
         <a href="#">
           <div class="item-panel__wrapper">
             <header class="facility-item__header">
-              <div class="name">
-                @vv.facility.name
-              </div>
             </header>
             <section class="facility-item__content">
-              <div>
+              <div class="form__section pref">
                 <div class="item-panel__content">
+				  <div class="form__section pref inline">
+					@helper.select(
+					  field   = form("locationId"),
+					  options = vv.location.map(v => (v.id, v.namePref)),
+					  '_label           -> "都道府県",
+					  '_default         -> "未選択",
+					  '_showConstraints -> false
+					)
+				  </div>
+				  <div class="name">
+				  	@helper.input(form("name"), '_label -> "施設名") { (id, name, value, args) =>
+						<input type="text" name="@name" id="@id" style="width:300px" @toHtmlArgs(args) value="@vv.facility.name">
+					}
+				  </div>
                   <div class="address">
-                    <label class="inline">住所:</label>
-                    <p class="inline">
-                      @vv.facility.address
-                    </p>
+					@helper.input(form("address"), '_label -> "住所") { (id, name, value, args) =>
+						<input type="text" name="@name" id="@id" style="width:300px" @toHtmlArgs(args) value="@vv.facility.address">
+					}
                   </div>
                   <div class="description">
-                    <label class="inline">備考:</label>
-                    <p class="inline">
-                      @vv.facility.description
-                    </p>
+					@helper.input(form("description"), '_label -> "備考") { (id, name, value, args) =>
+						<input type="text" name="@name" id="@id" style="width:300px" @toHtmlArgs(args) value="@vv.facility.description">
+					}
                   </div>
                 </div>
               </div>
+			  @** 変更ボタン *@
+			  <div class="form__section submit">
+				<button class="button" type="submit">
+				  <span class="submit__text">変更</span>
+				</button>
+			  </div>
             </section>
           </div>
         </a>
       </article>
+	  }
   </div>
 }

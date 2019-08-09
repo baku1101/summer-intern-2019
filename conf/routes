@@ -12,6 +12,7 @@ POST  /app/new-user                     controllers.app.NewUserCommitController.
 GET  /facility/list                    controllers.facility.FacilityController.list
 GET  /facility/search                  controllers.facility.FacilityController.search
 GET  /facility/edit                    controllers.facility.FacilityController.edit(id: persistence.facility.model.Facility.Id)
+POST /facility/editpost                controllers.facility.FacilityController.editpost(id: persistence.facility.model.Facility.Id)
 
 # --[ 特集ページ ]--------------------------------------------------------------
 GET  /recruit/intership-for-summer-21  controllers.recruit.InternshipForSummer21Controller.view

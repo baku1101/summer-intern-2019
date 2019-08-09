@@ -23,5 +23,6 @@ case class SiteViewValueFacilityList(
 //~~~~~~~~~~~~~~~~~~~~~
 case class SiteViewValueFacilityEdit(
   layout:   ViewValuePageLayout,
+  location: Seq[Location],
   facility: Facility
 )

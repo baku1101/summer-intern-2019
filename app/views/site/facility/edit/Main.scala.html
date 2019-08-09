@@ -8,8 +8,8 @@
 @import play.api.data.Form
 
 @** 施設一覧/検索 *@
-@import persistence.facility.model.FacilitySearch
-@(vv: SiteViewValueFacilityEdit, form: Form[FacilitySearch])(implicit messages: play.api.i18n.Messages)
+@import persistence.facility.model.FacilityEdit
+@(vv: SiteViewValueFacilityEdit, form: Form[FacilityEdit])(implicit messages: play.api.i18n.Messages)
 @views.html.common.layout.Default(vv.layout) {
   @views.html.common.layout.ContentLayout(
     id      = "site-facility-list",
