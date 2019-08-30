@@ -46,6 +46,14 @@ class FacilityDAO @javax.inject.Inject()(
     }
 
   /**
+   * 施設の最大idを取得する
+   */
+  def getMaxId =
+    db.run{
+      slick.map(_.id).max.result
+    }
+
+  /**
    * 地域から施設を取得
    * 検索業件: ロケーションID
    */

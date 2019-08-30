@@ -56,12 +56,6 @@ object Facility {
     )(FacilitySearch.apply)(FacilitySearch.unapply)
   )
 
-  val formForFacilityDelete = Form(
-    mapping(
-      "id" -> optional(longNumber),
-    )(FacilityDelete.apply)(FacilityDelete.unapply)
-  )
-
   val formForFacilityEdit = Form(
     mapping(
       "locationId" -> optional(text),

@@ -12,12 +12,12 @@ import play.api.mvc.{AbstractController, MessagesControllerComponents}
 import persistence.facility.dao.FacilityDAO
 import persistence.facility.model.Facility.formForFacilitySearch
 import persistence.facility.model.Facility.formForFacilityEdit
-import persistence.facility.model.Facility.formForFacilityDelete
 import persistence.facility.model.Facility
 import persistence.geo.model.Location
 import persistence.geo.dao.LocationDAO
 import model.site.facility.SiteViewValueFacilityList
 import model.site.facility.SiteViewValueFacilityEdit
+import model.site.facility.SiteViewValueFacilityRegister
 import model.component.util.ViewValuePageLayout
 import java.time.LocalDateTime
 import scala.concurrent.Future
@@ -57,6 +57,58 @@ class FacilityController @javax.inject.Inject()(
     } yield {
       Redirect("/facility/list")
     }
+  }
+
+  /**
+   * 施設登録
+   */
+
+  def register_page() = Action.async { implicit request =>
+    for {
+      locSeq      <- daoLocation.filterByIds(Location.Region.IS_PREF_ALL)
+      } yield {
+        val vv = SiteViewValueFacilityRegister(
+          layout     = ViewValuePageLayout(id = request.uri),
+          location   = locSeq,
+        )
+        Ok(views.html.site.facility.register.Main(vv, formForFacilityEdit))
+      }
+  }
+
+  def register() = Action.async { implicit request =>
+    // フォームから受け取る
+    formForFacilityEdit.bindFromRequest.fold(
+      errors => {
+        for {
+          locSeq      <- daoLocation.filterByIds(Location.Region.IS_PREF_ALL)
+        } yield {
+          val vv = SiteViewValueFacilityRegister(
+            layout   = ViewValuePageLayout(id = request.uri),
+            location   = locSeq,
+          )
+          BadRequest(views.html.site.facility.register.Main(vv, errors))
+        }
+      },
+      form   => {
+        // まずDBのupdate処理
+        for {
+          id <- facilityDao.getMaxId
+        } yield {
+          val f = Facility(
+            id = id.map(_+1),
+            locationId = form.locationIdOpt.get,
+            name = form.nameOpt.get,
+            address = form.addressOpt.get,
+            description = form.descriptionOpt.get,
+            updatedAt = LocalDateTime.now,
+            createdAt = LocalDateTime.now
+            )
+          facilityDao.insert(f)
+          // listの表示
+          Redirect("/facility/list")
+        }
+      }
+    )
   }
 
   /**
