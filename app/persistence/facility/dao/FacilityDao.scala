@@ -64,6 +64,22 @@ class FacilityDAO @javax.inject.Inject()(
       slick.filter(_.id === facility.id).update(facility)
     }
 
+  /**
+   * 施設情報の削除
+   */
+  def delete(id: Facility.Id) =
+    db.run {
+      slick.filter(_.id === id).delete
+    }
+
+  /**
+   * 施設情報の追加
+   */
+  def insert(facility: Facility) =
+    db.run {
+      slick.insertOrUpdate(facility)
+    }
+
   // --[ テーブル定義 ] --------------------------------------------------------
   class FacilityTable(tag: Tag) extends Table[Facility](tag, "facility") {
 
