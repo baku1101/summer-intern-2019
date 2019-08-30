@@ -10,7 +10,9 @@ package controllers.facility
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, MessagesControllerComponents}
 import persistence.facility.dao.FacilityDAO
-import persistence.facility.model.Facility.{formForFacilitySearch, formForFacilityEdit}
+import persistence.facility.model.Facility.formForFacilitySearch
+import persistence.facility.model.Facility.formForFacilityEdit
+import persistence.facility.model.Facility.formForFacilityDelete
 import persistence.facility.model.Facility
 import persistence.geo.model.Location
 import persistence.geo.dao.LocationDAO
@@ -47,6 +49,17 @@ class FacilityController @javax.inject.Inject()(
   }
 
   /**
+   * 施設削除
+   */
+  def delete(id: persistence.facility.model.Facility.Id) = Action.async { implicit request =>
+    for {
+      dummy <- facilityDao.delete(id)
+    } yield {
+      Redirect("/facility/list")
+    }
+  }
+
+  /**
    * 施設編集ページ
    */
   def edit(id: persistence.facility.model.Facility.Id) = Action.async {implicit request =>
@@ -65,6 +78,7 @@ class FacilityController @javax.inject.Inject()(
   }
 
   def editpost(id: persistence.facility.model.Facility.Id) = Action.async { implicit request =>
+    // フォームから受け取る
     formForFacilityEdit.bindFromRequest.fold(
       errors => {
         for {

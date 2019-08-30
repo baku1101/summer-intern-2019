@@ -70,6 +70,17 @@
                   </div>
                 </div>
               </div>
+			  @** 削除ボタン *@
+			  <div class="content__section form">
+				  @helper.form(action = controllers.facility.routes.FacilityController.delete(facility.id.get)) {
+
+				  <div class="form__section submit inline">
+					<button class="button" type="submit">
+					  <span class="submit__text">削除</span>
+					</button>
+				  </div>
+				  }
+			  </div>
             </section>
           </div>
         </a>

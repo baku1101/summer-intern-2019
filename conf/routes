@@ -10,6 +10,7 @@ POST  /app/new-user                     controllers.app.NewUserCommitController.
 
 # --[ 施設ページ ]----------------------------------------------------------------
 GET  /facility/list                    controllers.facility.FacilityController.list
+POST /facility/delete                  controllers.facility.FacilityController.delete(id: persistence.facility.model.Facility.Id)
 GET  /facility/search                  controllers.facility.FacilityController.search
 GET  /facility/edit                    controllers.facility.FacilityController.edit(id: persistence.facility.model.Facility.Id)
 POST /facility/editpost                controllers.facility.FacilityController.editpost(id: persistence.facility.model.Facility.Id)

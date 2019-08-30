@@ -11,10 +11,10 @@ import model.component.util.ViewValuePageLayout
 import persistence.geo.model.Location
 import persistence.facility.model.Facility
 
-// 表示: 施設一覧
+// 表示: 施設変更
 //~~~~~~~~~~~~~~~~~~~~~
-case class SiteViewValueFacilityList(
+case class SiteViewValueFacilityEdit(
   layout:   ViewValuePageLayout,
   location: Seq[Location],
-  facilities: Seq[Facility]
+  facility: Facility
 )
